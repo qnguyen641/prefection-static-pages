@@ -29,6 +29,7 @@
         const [email, setEmail] = React.useState('');
         const [pass, setPass] = React.useState('');
         const [error, setError] = React.useState('');
+        const [showAccounts, setShowAccounts] = React.useState(false);
         React.useEffect(() => {
           if (!user) return;
           const timer = setTimeout(() => window.PMIDemo.logout(), Math.max(0, expiresAt - Date.now()));
@@ -38,7 +39,7 @@
           event.preventDefault();
           const account = accounts.find(a => a.email === email.trim().toLowerCase());
           if (!account) { setError('Access denied — your account is not authorized.'); return; }
-          if (pass !== password) { setError('Incorrect password. Use the demo password shown below.'); return; }
+          if (pass !== password) { setError('Incorrect password. Select a demo account to fill in its credentials.'); return; }
           current = account;
           expiresAt = Date.now() + 28800000;
           try { sessionStorage.setItem(key, JSON.stringify({email: account.email, expires: expiresAt})); } catch {}
@@ -51,7 +52,7 @@
           h('section',{className:'demo-story'},h('div',{className:'demo-brand'},'PMI / PREFECTION'), h('div',null,h('p',{className:'demo-eyebrow'},'MANPOWER INTELLIGENCE'),h('h1',null,'The right people.\nThe next opportunity.'),h('p',null,'One workspace for candidate intelligence, job requests and interview coordination.')),h('p',{className:'demo-footnote'},'Interactive prototype · Sample data')),
           h('section',{className:'demo-form-panel'},h('div',{className:'demo-form-wrap'},h('p',{className:'demo-eyebrow'},'YOUR WORKSPACE'),h('h2',null,'Welcome back'),h('p',{className:'demo-muted'},'Sign in with a demo account to explore your role.'),
             h('form',{onSubmit:login},h('label',{htmlFor:'login-email'},'Email address'),h('input',{id:'login-email',type:'email',required:true,autoComplete:'username',value:email,onChange:e=>{setEmail(e.target.value);setError('');},placeholder:'you@prefection.example'}),h('label',{htmlFor:'login-password'},'Password'),h('input',{id:'login-password',type:'password',required:true,autoComplete:'current-password',value:pass,onChange:e=>setPass(e.target.value)}),error&&h('p',{role:'alert',className:'demo-error'},error),h('button',{className:'demo-submit',type:'submit'},'Sign in →')),
-            h('div',{className:'demo-accounts'},h('h3',null,'Choose a demo account'),h('p',null,'Shared password: ',h('code',null,password)),...accounts.map(a=>h('button',{key:a.role,type:'button',onClick:()=>{setEmail(a.email);setPass(password);setError('');}},h('span',null,h('strong',null,a.role),h('small',null,a.email)),h('span',{'aria-hidden':true},'↗')))),h('p',{className:'demo-disclaimer'},'Simulated sign-in with public test accounts. No real authentication or private data.'))));
+            h('div',{className:'demo-accounts'},h('button',{type:'button',className:'demo-account-toggle','aria-expanded':showAccounts,'aria-controls':'demo-account-options',onClick:()=>setShowAccounts(v=>!v)},h('span',null,'Try a demo account'),h('span',{'aria-hidden':true},showAccounts?'−':'+')),h('div',{id:'demo-account-options',hidden:!showAccounts},h('p',null,'Choose a role. Your sign-in details will be filled automatically.'),...accounts.map(a=>h('button',{key:a.role,type:'button',onClick:()=>{setEmail(a.email);setPass(password);setError('');setShowAccounts(false);document.getElementById('login-email')?.focus();}},h('span',null,h('strong',null,a.role),h('small',null,descriptions[a.role])),h('span',{'aria-hidden':true},'↗'))))),h('p',{className:'demo-disclaimer'},'Demo environment · Sample data'))));
       };
     }
   };
